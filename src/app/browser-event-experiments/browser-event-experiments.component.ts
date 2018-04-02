@@ -10,6 +10,8 @@ export class BrowserEventExperimentsComponent implements OnInit {
 
  hoverSection : HTMLElement;
  buttonSection : HTMLElement;
+ highlightColor:string="red";
+ _defaultColor:string="none";
 
   constructor() { }
 
@@ -35,7 +37,10 @@ export class BrowserEventExperimentsComponent implements OnInit {
     this.hoverSection.removeEventListener('mousemove',onMouseMove);
   }
 
+
 }
+
+
 
 function onClick(ev:MouseEvent){
   console.log(ev);
