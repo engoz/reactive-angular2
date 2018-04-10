@@ -4,6 +4,7 @@ import { Lesson } from '../shared/model/lesson';
 import { store } from './app-data';
 
 
+
 @Component({
   selector: 'event-bus-experiments',
   templateUrl: './event-bus-experiments.component.html',
@@ -11,19 +12,21 @@ import { store } from './app-data';
 })
 export class EventBusExperimentsComponent implements OnInit {
 
-  
-  constructor() { 
+  constructor(){
+    
   }
-
+  
   ngOnInit() {
     console.log("Top level compoonent broadcasted all lessons ... ");
+    
     store.initializeLessonList(testLessons.slice(0));
 
-    setTimeout(()=>{
+    setInterval(()=>{
       const newLesson = {
           id:Math.random(),
           description:'New lesson arriving from the backend'
       };
+      console.log("add lesson working");
       store.addLesson(newLesson);
       //TODO
     },10000);

@@ -1,6 +1,6 @@
 <table class="table lesson-list card card-strong">
 <tbody>
-  <tr *ngFor="let lesson of lessons" (click)="select(lesson)">
+  <tr *ngFor="let lesson of lessons">
       <td class="viewed">
         <input [checked]="lesson.completed" type="checkbox" (click)="toggleLessonViewed(lesson)">
       </td>

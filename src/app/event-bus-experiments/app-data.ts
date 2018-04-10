@@ -1,114 +1,43 @@
 import * as _ from 'lodash';
+import { Observable,Observer,BehaviorSubject } from 'rxjs';
 import { Lesson } from '../shared/model/lesson';
 
-export const LESSONS_LIST_AVAILABLE = 'NEW_LIST_AVAILABLE';
-export const ADD_NEW_LESSON = 'ADD_NEW_LESSON';
 
-export interface Observer {
-    next(data:any);
-}
+class DataStore {
 
-export interface Observable {
-    subscribe(obs:Observer);
-    unsubscribe(obs:Observer);
-}
 
-interface Subject extends Observer, Observable{
+    private lessonListSubject = new BehaviorSubject([]);
 
-}
+    public lessonsList$ : Observable<Lesson[]> = this.lessonListSubject.asObservable(); 
 
-class SubjectImplementation implements Subject {
     
-    private observers:Observer[] = [];
-    
-    next(data: any) {
-        this.observers.forEach(obs => obs.next(data));
-    }
-    subscribe(obs: Observer) {
-        this.observers.push(obs);
-    }
-    unsubscribe(obs: Observer) {
-       _.remove(this.observers, el=>el === obs);
-    }
- 
-
-}
-
-/*
-const lessonListSubject = new SubjectImplementation();
-
-export let lessonList$ : Observable = {
-    addLesson(arg0: any): any {
-    throw new Error("Method not implemented.");
-  }
-  subscribe : obs => {
-        lessonListSubject.subscribe(obs);
-        obs.next(lessons);
-    },
-    unsubscribe: obs =>  lessonListSubject.unsubscribe(obs)
-}
-
-let lessons : Lesson[] = [];
-
-export function initializeLessonList(newList:Lesson[]){
-    lessons = _.cloneDeep(newList);
-    lessonListSubject.next(lessons);
-}
-*/
-
-class DataStore implements Observable{
-  
-    private lessons : Lesson[] = [];
-
-    private lessonListSubject = new SubjectImplementation();
-
-    /* When Data Store not Observable Object
-    public lessonList$ : Observable = {
-        subscribe : obs => {
-            this.lessonListSubject.subscribe(obs);
-            obs.next(this.lessons);
-        },
-        unsubscribe: obs =>  this.lessonListSubject.unsubscribe(obs)
-    }
-    */
-
-    subscribe(obs: Observer) {
-        this.lessonListSubject.subscribe(obs);
-        obs.next(this.lessons);
-    }
-    unsubscribe(obs: Observer) {
-        this.lessonListSubject.unsubscribe(obs);
-    }
 
     initializeLessonList(newList:Lesson[]){
-        this.lessons = _.cloneDeep(newList);
-        this.broadcast();
+        this.lessonListSubject.next(_.cloneDeep(newList));
     }
 
     addLesson(newLesson:Lesson){
-        this.lessons.push(_.cloneDeep(newLesson));
-        this.broadcast();
+        const lessons = this.cloneLessons();
+        lessons.push(newLesson);
+        this.lessonListSubject.next(lessons);
     }
 
     toggleLessonViewed(toggled:Lesson){
-        const lesson = _.find(this.lessons, lesson => lesson.id == toggled.id);
+        const lessons = this.cloneLessons();
+        const lesson = _.find(lessons, lesson => lesson.id == toggled.id);
         lesson.completed = !lesson.completed;
-        this.broadcast(); 
+        this.lessonListSubject.next(lessons);
     }
 
     deleteLesson(deleted:Lesson){
-        _.remove(this.lessons, lesson => lesson.id === deleted.id);
-        this.broadcast();
-     }
-
-    broadcast(){
-        this.lessonListSubject.next(_.cloneDeep(this.lessons));
-    }
-
+        const lessons = this.cloneLessons();
+        _.remove(lessons, lesson => lesson.id === deleted.id);
+        this.lessonListSubject.next(lessons);    
+    } 
     
+    private cloneLessons(){
+        return _.cloneDeep(this.lessonListSubject.getValue());
+    }
 }
 
 export const store = new DataStore();
-
-
-
